@@ -21,17 +21,22 @@ pod install
 ``` objective-c
 #import "OCBase16.h"
 ```
-2、Usage1:
+2、Base16 Encode to UpperCase:
 ``` objective-c
 NSString *str = @"中国";
 NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
 NSString *base16EncodedStr = [OCBase16 encodeWithNSData:data];
 ```
-3、Usage2:
+3、Base16 Encode to LowerCase:
 ``` objective-c
 NSString *str = @"中国";
-    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
+NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
 NSString *base16EncodedStr2 = [OCBase16 encodeWithNSData:data toUpperCase:NO];
+```
+4、Base16 Decode Usage:
+``` objective-c
+NSString *str = @"4142434445";
+NSData *data = [OCBase16 decodeWithNSString:str];
 ```
 
 ## License
