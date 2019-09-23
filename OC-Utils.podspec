@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'OC-Utils'
-  s.version  = '1.0.0'
+  s.version  = '1.0.1'
   s.license  = 'MIT'
   s.summary  = 'Objective-C Utils for iOS macOS'
   s.homepage = 'https://github.com/leleliu008/OC-Utils'

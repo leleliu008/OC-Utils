@@ -5,28 +5,48 @@
 
 @implementation OCURL
 
-+ (NSString *)encodeWithNSString:(NSString *)input {
-    NSData *data = [input dataUsingEncoding:NSUTF8StringEncoding];
-    return [OCURL encodeWithNSData:data];
++ (NSString *) encodeWithNSString:(NSString *)input {
+    return [OCURL encodeWithNSString:input isBlackCode2Plus:YES];
 }
 
-+ (NSString *)encodeWithNSString:(NSString *)input toUpperCase:(BOOL)toUpperCase {
-    NSData *data = [input dataUsingEncoding:NSUTF8StringEncoding];
-    return [OCURL encodeWithNSData:data toUpperCase:toUpperCase];
++ (NSString *) encodeWithNSString:(NSString *)input
+               isBlackCode2Plus:(BOOL)isBlackCode2Plus {
+    return [OCURL encodeWithNSString:input isBlackCode2Plus:isBlackCode2Plus toUpperCase:YES];
 }
 
-+ (NSString *)encodeWithNSString:(NSString *)input toUpperCase:(BOOL)toUpperCase filter:(BOOL (^)(unichar))filter {
++ (NSString *) encodeWithNSString:(NSString *)input
+               isBlackCode2Plus:(BOOL)isBlackCode2Plus
+               toUpperCase:(BOOL)toUpperCase {
     NSData *data = [input dataUsingEncoding:NSUTF8StringEncoding];
-    return [OCURL encodeWithNSData:data toUpperCase:toUpperCase filter:filter];
+    return [OCURL encodeWithNSData:data
+                  isBlackCode2Plus:isBlackCode2Plus
+                  toUpperCase:toUpperCase];
 }
 
++ (NSString *) encodeWithNSString:(NSString *)input
+               isBlackCode2Plus:(BOOL)isBlackCode2Plus
+               toUpperCase:(BOOL)toUpperCase
+               keep:(BOOL (^)(unichar))keep {
+    NSData *data = [input dataUsingEncoding:NSUTF8StringEncoding];
+    return [OCURL encodeWithNSData:data isBlackCode2Plus:isBlackCode2Plus toUpperCase:toUpperCase keep:keep];
+}
 
 + (NSString*) encodeWithNSData:(NSData*)input {
-    return [OCURL encodeWithNSData:input toUpperCase:YES];
+    return [OCURL encodeWithNSData:input isBlackCode2Plus:YES toUpperCase:YES];
 }
 
-+ (NSString*) encodeWithNSData:(NSData*)input toUpperCase:(BOOL)toUpperCase {
-    return [OCURL encodeWithNSData:input toUpperCase:toUpperCase filter:^BOOL(unichar c) {
++ (NSString*) encodeWithNSData:(NSData*)input
+              isBlackCode2Plus:(BOOL)isBlackCode2Plus {
+    return [OCURL encodeWithNSData:input isBlackCode2Plus:isBlackCode2Plus toUpperCase:YES];
+}
+
++ (NSString*) encodeWithNSData:(NSData*)input
+              isBlackCode2Plus:(BOOL)isBlackCode2Plus
+              toUpperCase:(BOOL)toUpperCase {
+    return [OCURL encodeWithNSData:input
+                  isBlackCode2Plus:isBlackCode2Plus
+                  toUpperCase:toUpperCase
+                  keep:^BOOL(unichar c) {
         return (c >= '0' && c <= '9') ||
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
@@ -34,7 +54,10 @@
     }];
 }
 
-+ (NSString*) encodeWithNSData:(NSData*)input toUpperCase:(BOOL)toUpperCase filter:(BOOL (^)(unichar))filter {
++ (NSString*) encodeWithNSData:(NSData*)input
+              isBlackCode2Plus:(BOOL)isBlackCode2Plus
+              toUpperCase:(BOOL)toUpperCase
+              keep:(BOOL (^)(unichar))keep {
     NSString *table = toUpperCase? @"0123456789ABCDEF" : @"0123456789abcdef";
 
     NSInteger inputLength = input.length;
@@ -46,11 +69,11 @@
     
     for (int i = 0; i < inputLength; i++) {
         unichar c = inputBytes[i];
-        if (filter(c)) { //过滤掉安全字符（安全字符保持原样）
+        if (keep(c)) { //过滤掉安全字符（安全字符保持原样）
             outputBytes[outputLength++] = c;
-        } else if (c == ' ') { //把空格编码成+
+        } else if (c == ' ' && isBlackCode2Plus) { //把空格编码成+
             outputBytes[outputLength++] = '+';
-        } else { 
+        } else {
             //向右移动4bit，获得高4bit
             NSInteger highByte = inputBytes[i] >> 4;
             //与0x0F做位与运算，获得低4bit
@@ -79,7 +102,7 @@
             if (c == '%') {
                 unichar c1 = [input characterAtIndex:++i];
                 unichar c0 = [input characterAtIndex:++i];
-                outputBytes[outputLength++] = [OCURL hex2dec:c1] * 16 + [OCURL hex2dec:c0];
+                outputBytes[outputLength++] = ([OCURL hex2dec:c1] << 4) + [OCURL hex2dec:c0];
             } else if(c == '+') {
                 outputBytes[outputLength++] = ' ';
             } else {

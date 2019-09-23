@@ -14,16 +14,17 @@
     Byte *inputBytes = (Byte*)[data bytes];
     NSInteger inputLength = data.length;
     
-    NSInteger outputLength = 2 * inputLength;
+    NSInteger outputLength = inputLength << 1;
     Byte outputBytes[outputLength];
     
     for (int i = 0; i < inputLength; i++) {
         //向右移动4bit，获得高4bit
         NSInteger highByte = inputBytes[i] >> 4;
         //与0x0F做位与运算，获得低4bit
-        NSInteger lowByte = inputBytes[i] & 0x0F;
-        outputBytes[2 * i] = [table characterAtIndex: highByte];
-        outputBytes[2 * i + 1] = [table characterAtIndex: lowByte];
+        NSInteger lowByte  = inputBytes[i] & 0x0F;
+        int j = i << 1;
+        outputBytes[j]     = [table characterAtIndex: highByte];
+        outputBytes[j + 1] = [table characterAtIndex: lowByte];
     }
     
     NSData *outputData = [[NSData alloc] initWithBytes:outputBytes length:outputLength];
@@ -48,13 +49,14 @@
 + (NSData*)decodeWithNSString:(NSString*)input {
     if (input) {
         NSInteger inputLength = input.length;
-        NSInteger halfInputLength = inputLength / 2;
+        NSInteger halfInputLength = inputLength >> 1;
         Byte outputBytes[halfInputLength];
         for (int i = 0; i < halfInputLength; i++) {
-            unichar c1 = [input characterAtIndex:2 * i];
-            unichar c0 = [input characterAtIndex:2 * i + 1];
+            int j = i << 1;
+            unichar c1 = [input characterAtIndex:j];
+            unichar c0 = [input characterAtIndex:j + 1];
             //16进制数字转换为10进制数字的过程
-            outputBytes[i] = [OCBase16 hex2dec:c1] * 16 + [OCBase16 hex2dec:c0];
+            outputBytes[i] = ([OCBase16 hex2dec:c1] << 4) + [OCBase16 hex2dec:c0];
         }
         return [[NSData alloc] initWithBytes:outputBytes length:halfInputLength];
     }
