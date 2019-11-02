@@ -1,4 +1,4 @@
-//http://blog.fpliu.com/it/data/text/encoding/Base16
+//http://blog.fpliu.com/it/data/text/coding/Base16
 
 #import "OCBase16.h"
 

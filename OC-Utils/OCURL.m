@@ -1,4 +1,4 @@
-//http://blog.fpliu.com/it/data/text/encoding/URL
+//http://blog.fpliu.com/it/data/text/coding/URL
 //与Java中的java.net.URLEncoder实现相同
 
 #import "OCURL.h"
